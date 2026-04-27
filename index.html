@@ -3,55 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bàn phím Pro Max</title>
+    <title>Bàn phím Pro Max V3</title>
     <style>
-        /* CSS - Trang trí */
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 20px; background: #8e44ad; margin: 0; 
-            transition: background 0.5s; /* Hiệu ứng đổi màu nền mượt mà */
-        }
-        
-        h2 { color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #2c3e50; margin: 0; }
+        h2 { color: #f1c40f; }
         #display { 
-            width: 90%; min-height: 100px; font-size: 22px; padding: 15px; 
-            margin-bottom: 20px; border: none; border-radius: 15px; 
-            background: white; word-wrap: break-word; white-space: pre-wrap; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            width: 90%; min-height: 120px; font-size: 22px; padding: 15px; 
+            margin-bottom: 20px; border-radius: 15px; background: white; 
+            word-wrap: break-word; white-space: pre-wrap; overflow-y: auto;
         }
-
-        .keyboard { 
-            display: flex; flex-direction: column; gap: 10px; 
-            width: 100%; max-width: 600px; background: rgba(255,255,255,0.2); 
-            padding: 15px; border-radius: 20px; backdrop-filter: blur(10px);
-        }
-
-        .row { display: flex; justify-content: center; gap: 6px; }
-        
+        .keyboard { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 600px; }
+        .row { display: flex; justify-content: center; gap: 5px; }
         button { 
             flex: 1; height: 50px; border: none; border-radius: 8px; 
-            background: #ffffff; font-weight: bold; font-size: 16px;
-            cursor: pointer; transition: all 0.1s; /* Làm hiệu ứng nhấn mượt hơn */
-            box-shadow: 0 4px #bdc3c7;
+            background: white; font-weight: bold; font-size: 18px;
+            box-shadow: 0 4px #95a5a6; transition: 0.1s;
         }
-
-        /* Hiệu ứng khi nhấn vào phím */
-        button:active { 
-            background: #f1c40f !important; /* Đổi sang màu vàng khi chạm */
-            box-shadow: 0 0px #95a5a6; 
-            transform: translateY(4px); 
-        }
-
+        button:active { background: #f1c40f; transform: translateY(3px); box-shadow: none; }
+        .special { background: #bdc3c7; flex: 1.5; }
+        .backspace { background: #e74c3c; color: white; flex: 2; }
         .space { flex: 5; background: #ecf0f1; }
-        .backspace { flex: 2; background: #e74c3c; color: white; box-shadow: 0 4px #c0392b; }
-        .clear-all { flex: 2; background: #f39c12; color: white; box-shadow: 0 4px #d35400; }
     </style>
 </head>
 <body>
 
-    <h2>BÀN PHÍM THÔNG MINH</h2>
+    <h2>BÀN PHÍM CÓ ĐỘ RUNG</h2>
     <div id="display"></div>
 
     <div class="keyboard">
@@ -63,40 +39,42 @@
         </div>
         <div class="row">
             <button onclick="addChar('A')">A</button><button onclick="addChar('S')">S</button><button onclick="addChar('D')">D</button><button onclick="addChar('F')">F</button><button onclick="addChar('G')">G</button><button onclick="addChar('H')">H</button><button onclick="addChar('J')">J</button><button onclick="addChar('K')">K</button><button onclick="addChar('L')">L</button>
+            <button class="special" onclick="addChar('.')">.</button>
         </div>
         <div class="row">
             <button onclick="addChar('Z')">Z</button><button onclick="addChar('X')">X</button><button onclick="addChar('C')">C</button><button onclick="addChar('V')">V</button><button onclick="addChar('B')">B</button><button onclick="addChar('N')">N</button><button onclick="addChar('M')">M</button>
             <button class="backspace" onclick="delChar()">XÓA</button>
         </div>
         <div class="row">
-            <button class="clear-all" onclick="clearAll()">XÓA HẾT</button>
             <button class="space" onclick="addChar(' ')">DẤU CÁCH</button>
         </div>
     </div>
 
     <script>
-        // JavaScript - Logic điều khiển
         const display = document.getElementById('display');
-        
+
         function addChar(char) {
-            // Nếu màn hình đang trống, tự động viết hoa (đây là logic thông minh)
-            if (display.innerText === "") {
+            // 1. Tạo độ rung (Chỉ hoạt động trên Android)
+            if (navigator.vibrate) {
+                navigator.vibrate(50); // Rung 50 miligiây
+            }
+
+            // 2. Logic viết hoa thông minh
+            let text = display.innerText;
+            
+            // Nếu là chữ cái đầu tiên HOẶC sau dấu chấm và dấu cách
+            if (text === "" || text.endsWith(". ") || text.endsWith(".")) {
                 display.innerText += char.toUpperCase();
             } else {
-                display.innerText += char.toUpperCase();
+                display.innerText += char.toLowerCase();
             }
+            
             display.scrollTop = display.scrollHeight;
         }
-        
-        function delChar() {
-            display.innerText = display.innerText.slice(0, -1);
-        }
 
-        // Hàm mới để xóa tất cả
-        function clearAll() {
-            if(confirm("Bạn có chắc muốn xóa hết không?")) {
-                display.innerText = "";
-            }
+        function delChar() {
+            if (navigator.vibrate) navigator.vibrate(30);
+            display.innerText = display.innerText.slice(0, -1);
         }
     </script>
 </body>
