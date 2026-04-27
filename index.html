@@ -3,42 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bàn phím Pro Max V4</title>
+    <title>Bàn phím Tiếng Việt Pro</title>
     <style>
         body { 
             font-family: sans-serif; display: flex; flex-direction: column; 
-            align-items: center; padding: 20px; background: #2c3e50; 
+            align-items: center; padding: 15px; background: #2c3e50; 
             margin: 0; transition: background 0.4s; 
         }
-        h2 { color: white; }
         #display { 
-            width: 90%; min-height: 120px; font-size: 22px; padding: 15px; 
-            margin-bottom: 20px; border-radius: 15px; background: white; 
+            width: 90%; min-height: 100px; font-size: 20px; padding: 15px; 
+            margin-bottom: 15px; border-radius: 12px; background: white; 
             word-wrap: break-word; white-space: pre-wrap; overflow-y: auto;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
-        .keyboard { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 600px; }
-        .row { display: flex; justify-content: center; gap: 5px; }
-        button { 
-            flex: 1; height: 50px; border: none; border-radius: 8px; 
-            background: white; font-weight: bold; font-size: 18px;
-            box-shadow: 0 4px #95a5a6; transition: 0.1s;
-            touch-action: manipulation; /* Ngăn zoom khi bấm nhanh */
-        }
-        button:active { background: #f1c40f; transform: translateY(3px); box-shadow: none; }
+        .keyboard { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 550px; }
+        .row { display: flex; justify-content: center; gap: 4px; }
         
-        /* Màu sắc các nút đặc biệt */
-        .btn-color { background: #9b59b6; color: white; }
+        button { 
+            flex: 1; height: 48px; border: none; border-radius: 6px; 
+            background: white; font-weight: bold; font-size: 15px;
+            box-shadow: 0 3px #95a5a6; transition: 0.1s;
+            touch-action: manipulation;
+        }
+        button:active { background: #f1c40f; transform: translateY(2px); box-shadow: none; }
+        
+        /* Màu phím tiếng Việt */
+        .vn-key { background: #e8f8f5; color: #16a085; }
         .backspace { background: #e74c3c; color: white; flex: 2; }
         .space { flex: 4; background: #ecf0f1; }
+        .btn-action { background: #9b59b6; color: white; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <h2 id="title">BÀN PHÍM ĐA NĂNG</h2>
+    <h3 style="color: white; margin-bottom: 10px;">BÀN PHÍM TIẾNG VIỆT</h3>
     <div id="display"></div>
 
     <div class="keyboard">
+        <div class="row">
+            <button class="vn-key" onclick="addChar('Ă')">Ă</button>
+            <button class="vn-key" onclick="addChar('Â')">Â</button>
+            <button class="vn-key" onclick="addChar('Đ')">Đ</button>
+            <button class="vn-key" onclick="addChar('Ê')">Ê</button>
+            <button class="vn-key" onclick="addChar('Ô')">Ô</button>
+            <button class="vn-key" onclick="addChar('Ơ')">Ơ</button>
+            <button class="vn-key" onclick="addChar('Ư')">Ư</button>
+        </div>
+        
         <div class="row">
             <button onclick="addChar('1')">1</button><button onclick="addChar('2')">2</button><button onclick="addChar('3')">3</button><button onclick="addChar('4')">4</button><button onclick="addChar('5')">5</button><button onclick="addChar('6')">6</button><button onclick="addChar('7')">7</button><button onclick="addChar('8')">8</button><button onclick="addChar('9')">9</button><button onclick="addChar('0')">0</button>
         </div>
@@ -54,37 +65,19 @@
             <button class="backspace" onclick="delChar()">XÓA</button>
         </div>
         <div class="row">
-            <button class="btn-color" onclick="changeBg()">ĐỔI MÀU</button>
+            <button class="btn-action" onclick="changeBg()">ĐỔI MÀU</button>
             <button class="space" onclick="addChar(' ')">SPACE</button>
+            <button class="btn-action" onclick="clearAll()">XÓA HẾT</button>
         </div>
     </div>
 
     <script>
         const display = document.getElementById('display');
 
-        // Hàm tạo âm thanh "tạch" ngắn
-        function playClickSound() {
-            const context = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = context.createOscillator();
-            const gain = context.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(400, context.currentTime);
-            gain.gain.setValueAtTime(0.1, context.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
-            osc.connect(gain);
-            gain.connect(context.destination);
-            osc.start();
-            osc.stop(context.currentTime + 0.1);
-        }
-
         function addChar(char) {
-            // 1. Rung và Âm thanh
             if (navigator.vibrate) navigator.vibrate(40);
-            playClickSound();
-
-            let text = display.innerText;
             
-            // 2. Sửa lỗi "2 dấu cách": Dùng Regex kiểm tra kết thúc bằng dấu chấm và bất kỳ số lượng khoảng trắng nào
+            let text = display.innerText;
             const shouldCapitalize = (text === "" || /\. +$/.test(text) || text.endsWith("."));
 
             if (shouldCapitalize) {
@@ -92,7 +85,6 @@
             } else {
                 display.innerText += char.toLowerCase();
             }
-            
             display.scrollTop = display.scrollHeight;
         }
 
@@ -101,11 +93,13 @@
             display.innerText = display.innerText.slice(0, -1);
         }
 
-        // Hàm đổi màu nền ngẫu nhiên
+        function clearAll() {
+            if(confirm("Xóa sạch màn hình?")) display.innerText = "";
+        }
+
         function changeBg() {
-            const colors = ['#1abc9c', '#3498db', '#9b59b6', '#e67e22', '#e74c3c', '#2c3e50', '#27ae60'];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            document.body.style.background = randomColor;
+            const colors = ['#1abc9c', '#3498db', '#9b59b6', '#e67e22', '#2c3e50'];
+            document.body.style.background = colors[Math.floor(Math.random() * colors.length)];
         }
     </script>
 </body>
