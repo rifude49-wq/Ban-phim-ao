@@ -3,14 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bàn phím Pro Max V3</title>
+    <title>Bàn phím Pro Max V4</title>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #2c3e50; margin: 0; }
-        h2 { color: #f1c40f; }
+        body { 
+            font-family: sans-serif; display: flex; flex-direction: column; 
+            align-items: center; padding: 20px; background: #2c3e50; 
+            margin: 0; transition: background 0.4s; 
+        }
+        h2 { color: white; }
         #display { 
             width: 90%; min-height: 120px; font-size: 22px; padding: 15px; 
             margin-bottom: 20px; border-radius: 15px; background: white; 
             word-wrap: break-word; white-space: pre-wrap; overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         .keyboard { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 600px; }
         .row { display: flex; justify-content: center; gap: 5px; }
@@ -18,16 +23,19 @@
             flex: 1; height: 50px; border: none; border-radius: 8px; 
             background: white; font-weight: bold; font-size: 18px;
             box-shadow: 0 4px #95a5a6; transition: 0.1s;
+            touch-action: manipulation; /* Ngăn zoom khi bấm nhanh */
         }
         button:active { background: #f1c40f; transform: translateY(3px); box-shadow: none; }
-        .special { background: #bdc3c7; flex: 1.5; }
+        
+        /* Màu sắc các nút đặc biệt */
+        .btn-color { background: #9b59b6; color: white; }
         .backspace { background: #e74c3c; color: white; flex: 2; }
-        .space { flex: 5; background: #ecf0f1; }
+        .space { flex: 4; background: #ecf0f1; }
     </style>
 </head>
 <body>
 
-    <h2>BÀN PHÍM CÓ ĐỘ RUNG</h2>
+    <h2 id="title">BÀN PHÍM ĐA NĂNG</h2>
     <div id="display"></div>
 
     <div class="keyboard">
@@ -39,31 +47,47 @@
         </div>
         <div class="row">
             <button onclick="addChar('A')">A</button><button onclick="addChar('S')">S</button><button onclick="addChar('D')">D</button><button onclick="addChar('F')">F</button><button onclick="addChar('G')">G</button><button onclick="addChar('H')">H</button><button onclick="addChar('J')">J</button><button onclick="addChar('K')">K</button><button onclick="addChar('L')">L</button>
-            <button class="special" onclick="addChar('.')">.</button>
+            <button style="background:#bdc3c7" onclick="addChar('.')">.</button>
         </div>
         <div class="row">
             <button onclick="addChar('Z')">Z</button><button onclick="addChar('X')">X</button><button onclick="addChar('C')">C</button><button onclick="addChar('V')">V</button><button onclick="addChar('B')">B</button><button onclick="addChar('N')">N</button><button onclick="addChar('M')">M</button>
             <button class="backspace" onclick="delChar()">XÓA</button>
         </div>
         <div class="row">
-            <button class="space" onclick="addChar(' ')">DẤU CÁCH</button>
+            <button class="btn-color" onclick="changeBg()">ĐỔI MÀU</button>
+            <button class="space" onclick="addChar(' ')">SPACE</button>
         </div>
     </div>
 
     <script>
         const display = document.getElementById('display');
 
-        function addChar(char) {
-            // 1. Tạo độ rung (Chỉ hoạt động trên Android)
-            if (navigator.vibrate) {
-                navigator.vibrate(50); // Rung 50 miligiây
-            }
+        // Hàm tạo âm thanh "tạch" ngắn
+        function playClickSound() {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = context.createOscillator();
+            const gain = context.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, context.currentTime);
+            gain.gain.setValueAtTime(0.1, context.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(context.destination);
+            osc.start();
+            osc.stop(context.currentTime + 0.1);
+        }
 
-            // 2. Logic viết hoa thông minh
+        function addChar(char) {
+            // 1. Rung và Âm thanh
+            if (navigator.vibrate) navigator.vibrate(40);
+            playClickSound();
+
             let text = display.innerText;
             
-            // Nếu là chữ cái đầu tiên HOẶC sau dấu chấm và dấu cách
-            if (text === "" || text.endsWith(". ") || text.endsWith(".")) {
+            // 2. Sửa lỗi "2 dấu cách": Dùng Regex kiểm tra kết thúc bằng dấu chấm và bất kỳ số lượng khoảng trắng nào
+            const shouldCapitalize = (text === "" || /\. +$/.test(text) || text.endsWith("."));
+
+            if (shouldCapitalize) {
                 display.innerText += char.toUpperCase();
             } else {
                 display.innerText += char.toLowerCase();
@@ -73,8 +97,15 @@
         }
 
         function delChar() {
-            if (navigator.vibrate) navigator.vibrate(30);
+            if (navigator.vibrate) navigator.vibrate(20);
             display.innerText = display.innerText.slice(0, -1);
+        }
+
+        // Hàm đổi màu nền ngẫu nhiên
+        function changeBg() {
+            const colors = ['#1abc9c', '#3498db', '#9b59b6', '#e67e22', '#e74c3c', '#2c3e50', '#27ae60'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            document.body.style.background = randomColor;
         }
     </script>
 </body>
